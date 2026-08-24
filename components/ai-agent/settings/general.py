@@ -12,6 +12,14 @@ class Settings:
     bucket_session: str = os.getenv("BUCKET_SESSION", "easyfinance")
     bucket_prefix: str = os.getenv("BUCKET_PREFIX", "production/")
 
+    # PostgreSQL
+    db_host: str = os.getenv("DB_HOST", "localhost")
+    db_port: int = int(os.getenv("DB_PORT", "5432"))
+    db_name: str = os.getenv("DB_NAME", "easyfinance")
+    db_user: str = os.getenv("DB_USER", "postgres")
+    db_password: str = os.getenv("DB_PASSWORD", "")
+    db_table: str = os.getenv("DB_TABLE", "spendings")
+
 
 @lru_cache
 def get_settings() -> Settings:
