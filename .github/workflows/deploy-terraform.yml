@@ -49,14 +49,13 @@ jobs:
         run: |
           terraform init \
             -backend-config="bucket=terraform-state-${{ vars.ACCOUNT_ID }}" \
-            -backend-config="key=lexana-ai-agent/${{ github.ref_name }}/terraform.tfstate" \
+            -backend-config="key=easyfinance/${{ github.ref_name }}/terraform.tfstate" \
             -backend-config="region=${{ vars.AWS_REGION }}" \
             -backend-config="encrypt=true"
 
       - name: Terraform Format Check
         working-directory: infra/terraform
         run: terraform fmt -check -recursive
-        continue-on-error: true
 
       - name: Terraform Validate
         working-directory: infra/terraform
@@ -65,7 +64,6 @@ jobs:
           TF_VAR_aws_region: ${{ vars.AWS_REGION }}
           TF_VAR_aws_account_id: ${{ vars.ACCOUNT_ID }}
           TF_VAR_infra_version: ${{ vars.INFRA_VERSION }}
-          TF_VAR_openai_api_key: ${{ secrets.OPENAI_API_KEY }}
         run: terraform validate
 
       - name: Terraform Plan
@@ -75,7 +73,6 @@ jobs:
           TF_VAR_aws_region: ${{ vars.AWS_REGION }}
           TF_VAR_aws_account_id: ${{ vars.ACCOUNT_ID }}
           TF_VAR_infra_version: ${{ vars.INFRA_VERSION }}
-          TF_VAR_openai_api_key: ${{ secrets.OPENAI_API_KEY }}
         run: terraform plan -out=tfplan
 
       - name: Terraform Apply

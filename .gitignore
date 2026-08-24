@@ -51,3 +51,14 @@ htmlcov/
 .DS_Store
 .vscode/
 .idea/
+
+# Terraform local state and sensitive inputs
+.terraform/
+*.tfstate
+*.tfstate.*
+.terraform.tfstate.lock.info
+crash.log
+crash.*.log
+*.tfvars
+*.tfvars.json
+!*.tfvars.example

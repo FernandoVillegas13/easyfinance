@@ -7,9 +7,7 @@ on:
       - qa
       - prod
     paths:
-      - "**"
-      - "!infra/**"
-      - "!.github/workflows/deploy-terraform.yml"
+      - "components/ai-agent/**"
       - ".github/workflows/deploy-ai-agent.yml"
       - ".github/actions/deploy-lambda/**"
   workflow_dispatch:
@@ -24,7 +22,7 @@ permissions:
 
 jobs:
   deploy:
-    name: Build and Deploy AI Agent Lambda
+    name: Build Image and Deploy AI Agent Lambda
     environment: ${{ github.ref_name }}
     runs-on: ubuntu-latest
 
@@ -32,7 +30,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Deploy AI Agent Lambda
+      - name: Build Image and Deploy AI Agent Lambda
         uses: ./.github/actions/deploy-lambda
         with:
           aws-region: ${{ vars.AWS_REGION }}
@@ -41,6 +39,6 @@ jobs:
           environment: ${{ github.ref_name }}
           infra-version: ${{ vars.INFRA_VERSION }}
           lambda-name: ai-agent
-          lambda-path: .
+          lambda-path: components/ai-agent
           sha-tag: ${{ github.sha }}
           session-name-suffix: ai-agent
