@@ -1,0 +1,50 @@
+# Git
+.git/
+.gitignore
+
+# Python bytecode and virtual environments
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+.venv-*/
+venv/
+env/
+ENV/
+.virtualenv/
+
+# Local environment variables and secrets
+.env
+.env.*
+!.env.example
+!.env.sample
+
+# Tests, coverage, and tooling caches
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+.mypy_cache/
+.pyre/
+.pytype/
+.ruff_cache/
+.hypothesis/
+
+# Build, runtime, and local development files
+build/
+dist/
+.eggs/
+*.egg-info/
+*.egg
+*.log
+*.pid
+*.sqlite3
+*.db
+
+# Editor and operating system files
+.DS_Store
+.vscode/
+.idea/
+.ipynb_checkpoints/

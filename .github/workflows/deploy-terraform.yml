@@ -1,0 +1,91 @@
+name: Deploy Terraform Infrastructure
+
+on:
+  push:
+    branches:
+      - dev
+      - qa
+      - prod
+    paths:
+      - "infra/terraform/**"
+      - ".github/workflows/deploy-terraform.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: infrastructure-deploy-${{ github.ref_name }}
+  cancel-in-progress: false
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  TF_VERSION: "1.9.8"
+
+jobs:
+  deploy:
+    name: Deploy Infrastructure
+    environment: ${{ github.ref_name }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ vars.ACCOUNT_ID }}:role/github-oidc-cdk
+          role-session-name: github-actions-terraform-${{ github.run_id }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Terraform Init
+        working-directory: infra/terraform
+        run: |
+          terraform init \
+            -backend-config="bucket=terraform-state-${{ vars.ACCOUNT_ID }}" \
+            -backend-config="key=lexana-ai-agent/${{ github.ref_name }}/terraform.tfstate" \
+            -backend-config="region=${{ vars.AWS_REGION }}" \
+            -backend-config="encrypt=true"
+
+      - name: Terraform Format Check
+        working-directory: infra/terraform
+        run: terraform fmt -check -recursive
+        continue-on-error: true
+
+      - name: Terraform Validate
+        working-directory: infra/terraform
+        env:
+          TF_VAR_environment: ${{ github.ref_name }}
+          TF_VAR_aws_region: ${{ vars.AWS_REGION }}
+          TF_VAR_aws_account_id: ${{ vars.ACCOUNT_ID }}
+          TF_VAR_infra_version: ${{ vars.INFRA_VERSION }}
+          TF_VAR_openai_api_key: ${{ secrets.OPENAI_API_KEY }}
+        run: terraform validate
+
+      - name: Terraform Plan
+        working-directory: infra/terraform
+        env:
+          TF_VAR_environment: ${{ github.ref_name }}
+          TF_VAR_aws_region: ${{ vars.AWS_REGION }}
+          TF_VAR_aws_account_id: ${{ vars.ACCOUNT_ID }}
+          TF_VAR_infra_version: ${{ vars.INFRA_VERSION }}
+          TF_VAR_openai_api_key: ${{ secrets.OPENAI_API_KEY }}
+        run: terraform plan -out=tfplan
+
+      - name: Terraform Apply
+        working-directory: infra/terraform
+        run: terraform apply -auto-approve tfplan
+
+      - name: Output Summary
+        working-directory: infra/terraform
+        run: |
+          echo "## Terraform Outputs" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          terraform output >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY

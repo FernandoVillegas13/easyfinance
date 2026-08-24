@@ -1,0 +1,13 @@
+services:
+  ai-agent:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: easyfinance-ai-agent:local
+    pull_policy: build
+    ports:
+      - "${AI_AGENT_PORT:-8000}:8000"
+    env_file:
+      - path: .env
+        required: false
+    init: true

@@ -1,11 +1,20 @@
-from pydantic import BaseModel, Field, ConfigDict, BaseSettings
 from functools import lru_cache
+
 
 class Settings:
     api_version: str = "v1"
+    agent_model: str = "us.amazon.nova-2-lite-v1:0"
+    region_name: str = "us-east-1"
+    temperature: int = 0.3
 
-@lru.cache
-def get_settings() -> Settings
+    #Session Manager
+    bucket_session: str = "easyfinance"
+    bucket_prefix: str = "production/"
+
+
+@lru_cache
+def get_settings() -> Settings:
     return Settings()
+
 
 settings = get_settings()
