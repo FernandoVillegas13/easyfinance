@@ -1,15 +1,13 @@
-# S3 bucket used by the AI agent to persist sessions.
 resource "aws_s3_bucket" "easyfinance" {
-  bucket        = var.s3_session_bucket_name
+  bucket        = local.session_bucket_name
   force_destroy = false
 
   tags = {
-    Name      = var.s3_session_bucket_name
+    Name      = local.session_bucket_name
     Component = "ai-agent"
   }
 }
 
-# Keep session data private, even if an ACL or policy is added accidentally.
 resource "aws_s3_bucket_public_access_block" "easyfinance" {
   bucket = aws_s3_bucket.easyfinance.id
 
@@ -27,7 +25,6 @@ resource "aws_s3_bucket_ownership_controls" "easyfinance" {
   }
 }
 
-# Enable encryption at rest for all session objects.
 resource "aws_s3_bucket_server_side_encryption_configuration" "easyfinance" {
   bucket = aws_s3_bucket.easyfinance.id
 
