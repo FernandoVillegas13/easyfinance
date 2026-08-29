@@ -28,6 +28,16 @@ struct ContentView: View {
         .task {
             await viewModel.loadIfNeeded()
         }
+        .sheet(item: $viewModel.activeDictation) { purpose in
+            DictationSheet(
+                title: purpose.title,
+                suggestions: purpose.suggestions,
+                onSubmit: { text in
+                    Task { await viewModel.handleDictationResult(purpose, text: text) }
+                },
+                onCancel: { viewModel.cancelDictation() }
+            )
+        }
     }
 
     private var header: some View {
@@ -136,7 +146,7 @@ struct ContentView: View {
                     ? "Registrando gasto"
                     : "Agregar gasto con dictado"
             ) {
-                Task { await viewModel.logExpenseUsingDictation() }
+                viewModel.startLoggingExpense()
             }
 
             Text(viewModel.isLoggingExpense ? "Procesando…" : "Toca para agregar un gasto")

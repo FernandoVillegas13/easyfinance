@@ -46,7 +46,7 @@ struct ConsultView: View {
                     ? "Consultando al agente"
                     : "Preguntar con dictado"
             ) {
-                Task { await viewModel.askUsingDictation() }
+                viewModel.startAsking()
             }
 
             Text(viewModel.isChatting ? "Consultando al agente…" : "Toca para preguntar")

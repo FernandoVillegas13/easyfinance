@@ -1,9 +1,16 @@
 FROM python:3.13.8-slim
 
+# Lambda Web Adapter translates Lambda Function URL events into standard
+# HTTP requests against Uvicorn, and vice versa. Without this, Lambda has
+# no way to invoke a plain ASGI server and the init phase times out.
+COPY --from=public.ecr.aws/awsguru/aws-lambda-adapter:0.9.1 /lambda-adapter /opt/extensions/lambda-adapter
+
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
-    PIP_DISABLE_PIP_VERSION_CHECK=1
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    AWS_LWA_PORT=8000 \
+    AWS_LWA_READINESS_CHECK_PATH=/health
 
 WORKDIR /app
 

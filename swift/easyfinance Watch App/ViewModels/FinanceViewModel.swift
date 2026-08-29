@@ -18,17 +18,19 @@ final class FinanceViewModel: ObservableObject {
     @Published private(set) var chatResponse: String?
     @Published private(set) var chatError: String?
 
+    /// Set to present the dictation sheet; the view observes this and shows
+    /// `DictationSheet` when non-nil, clearing it once the user submits or
+    /// cancels.
+    @Published var activeDictation: DictationPurpose?
+
     private let apiClient: AgentAPIClient
-    private let dictationService: WatchDictationService
     private let pendingStore: PendingExpenseStore
 
     init(
         apiClient: AgentAPIClient? = nil,
-        dictationService: WatchDictationService? = nil,
         pendingStore: PendingExpenseStore? = nil
     ) {
         self.apiClient = apiClient ?? AgentAPIClient(configuration: .live())
-        self.dictationService = dictationService ?? WatchDictationService()
         self.pendingStore = pendingStore ?? PendingExpenseStore()
     }
 
@@ -123,50 +125,56 @@ final class FinanceViewModel: ObservableObject {
         pendingCount = await pendingStore.count()
     }
 
-    func logExpenseUsingDictation() async {
+    func startLoggingExpense() {
+        guard !isLoggingExpense else { return }
+        activeDictation = .logExpense
+    }
+
+    func startAsking() {
+        guard !isChatting else { return }
+        activeDictation = .chat
+    }
+
+    func cancelDictation() {
+        activeDictation = nil
+    }
+
+    /// Called by the view once the user submits text from the dictation
+    /// sheet. Routes it to the log or chat flow based on why the sheet was
+    /// opened.
+    func handleDictationResult(_ purpose: DictationPurpose, text: String) async {
+        activeDictation = nil
+        let transcript = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !transcript.isEmpty else { return }
+
+        switch purpose {
+        case .logExpense:
+            await logExpense(transcript)
+        case .chat:
+            await ask(transcript)
+        }
+    }
+
+    private func logExpense(_ transcript: String) async {
         guard !isLoggingExpense else { return }
         isLoggingExpense = true
         logFeedback = nil
+        logTranscript = transcript
         defer { isLoggingExpense = false }
 
         do {
-            let transcript = try await dictationService.transcribe(suggestions: [
-                "Gasté 10 soles en café",
-                "Pasaje 2 soles",
-                "Pagué 30 soles con tarjeta"
-            ])
-            logTranscript = transcript
             logFeedback = "Registrando…"
             let response = try await apiClient.logExpense(transcript)
             logFeedback = response.trimmingCharacters(in: .whitespacesAndNewlines)
             await refresh(silently: true)
-        } catch WatchDictationError.cancelled {
-            logFeedback = nil
         } catch let error as AgentAPIError where error.isRetryable {
             // Dictation already happened locally — never lose it because the
             // network failed. Queue it and retry automatically on refresh.
-            await pendingStore.add(logTranscript ?? "")
+            await pendingStore.add(transcript)
             await refreshPendingCount()
             logFeedback = "Sin conexión. Se enviará automáticamente."
         } catch {
             logFeedback = error.localizedDescription
-        }
-    }
-
-    func askUsingDictation() async {
-        guard !isChatting else { return }
-
-        do {
-            let transcript = try await dictationService.transcribe(suggestions: [
-                "¿Cuánto gasté hoy?",
-                "¿En qué gasto más?",
-                "Resume mis gastos de esta semana"
-            ])
-            await ask(transcript)
-        } catch WatchDictationError.cancelled {
-            return
-        } catch {
-            chatError = error.localizedDescription
         }
     }
 
