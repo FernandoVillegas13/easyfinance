@@ -39,3 +39,41 @@ variable "log_retention_days" {
   type        = number
   default     = 30
 }
+
+variable "db_host" {
+  description = "PostgreSQL host for the EasyFinance database."
+  type        = string
+}
+
+variable "db_port" {
+  description = "PostgreSQL port."
+  type        = string
+  default     = "5432"
+}
+
+variable "db_name" {
+  description = "PostgreSQL database name."
+  type        = string
+}
+
+variable "db_user" {
+  description = "PostgreSQL user."
+  type        = string
+}
+
+variable "db_password" {
+  description = "PostgreSQL password."
+  type        = string
+  sensitive   = true
+}
+
+variable "db_schema" {
+  description = "PostgreSQL schema used by the EasyFinance AI agent."
+  type        = string
+}
+
+variable "api_key" {
+  description = "API key for authenticating requests to the EasyFinance AI agent."
+  type        = string
+  sensitive   = true
+}

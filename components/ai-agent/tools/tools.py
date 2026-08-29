@@ -1,6 +1,7 @@
 from strands import tool
 from schema.spending import SpendingInput
 from services.database.database_service import IDataService
+from settings.logger import logger
 
 
 class Tools:
@@ -30,9 +31,12 @@ class Tools:
             if isinstance(element, dict):
                 element = SpendingInput(**element)
 
+            logger.info(f"[add_new_spending] user={self._user_id} amount={element.amount} {element.currency} category={element.category}")
             created_id = self._database_service.create_element(element, self._user_id)
+            logger.info(f"[add_new_spending] saved id={created_id}")
             return f"saved:{created_id}"
         except Exception as e:
+            logger.error(f"[add_new_spending] error={e}")
             return f"error:{str(e)}"
 
     @tool
@@ -49,6 +53,10 @@ class Tools:
                  Example: SELECT category, SUM(amount) as total FROM spendings GROUP BY category ORDER BY total DESC
         """
         try:
-            return self._database_service.query_spendings(self._user_id, sql)
+            logger.info(f"[query_spendings] user={self._user_id} sql={sql!r}")
+            result = self._database_service.query_spendings(self._user_id, sql)
+            logger.info(f"[query_spendings] rows={len(result) if isinstance(result, list) else 'n/a'}")
+            return result
         except Exception as e:
+            logger.error(f"[query_spendings] error={e}")
             return f"error:{str(e)}"

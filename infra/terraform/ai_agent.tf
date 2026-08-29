@@ -122,6 +122,13 @@ resource "aws_lambda_function" "ai_agent" {
       ENVIRONMENT    = var.environment
       BUCKET_SESSION = aws_ssm_parameter.s3_session_bucket.value
       BUCKET_PREFIX  = aws_ssm_parameter.s3_session_prefix.value
+      DB_HOST        = aws_ssm_parameter.db_host.value
+      DB_PORT        = aws_ssm_parameter.db_port.value
+      DB_NAME        = aws_ssm_parameter.db_name.value
+      DB_USER        = aws_ssm_parameter.db_user.value
+      DB_PASSWORD    = aws_ssm_parameter.db_password.value
+      DB_SCHEMA      = aws_ssm_parameter.db_schema.value
+      API_KEY        = aws_ssm_parameter.api_key.value
     }
   }
 

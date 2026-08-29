@@ -6,6 +6,7 @@ from starlette.requests import Request
 
 from schema.response import UserRequest
 from settings.general import settings
+from settings.logger import logger
 from agent.log_agent_builder import LogAgentBuilder
 from agent.chat_agent_builder import ChatAgentBuilder
 from agent.session_manager import SessionManager
@@ -18,6 +19,8 @@ session_manager = SessionManager()
 tools = Tools(database_service=database_service)
 
 app = FastAPI()
+
+logger.info("EasyFinance AI agent starting up")
 
 app.add_middleware(
     CORSMiddleware,
@@ -49,6 +52,7 @@ async def log(user_request: UserRequest) -> dict[str, str]:
     """
     Silent logging endpoint. Extracts expenses from the message and saves them.
     """
+    logger.info(f"[log] user={user_request.user_id} query={user_request.query!r}")
     agent = LogAgentBuilder(tools=tools.get_log_tools(user_request.user_id)).build_agent()
     agent_response = agent(user_request.query)
 
@@ -61,6 +65,7 @@ async def chat(user_request: UserRequest) -> dict[str, str]:
     Conversational endpoint. Can log expenses and answer analytical questions.
     Query tools are bound per-request to enforce row-level security by user_id.
     """
+    logger.info(f"[chat] user={user_request.user_id} query={user_request.query!r}")
     chat_agent_builder = ChatAgentBuilder(
         tools=tools.get_chat_tools(user_request.user_id)
     )
