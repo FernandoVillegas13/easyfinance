@@ -9,13 +9,12 @@ from settings.general import settings
 
 class LogAgentBuilder:
 
-    conversation_manager = SlidingWindowConversationManager(
-        window_size=5,
-        should_truncate_results=True,
-    )
-
     def __init__(self, tools: list):
         self._tools = tools
+        self._conversation_manager = SlidingWindowConversationManager(
+            window_size=5,
+            should_truncate_results=True,
+        )
 
     def build_agent(self) -> Agent:
         bedrock_model = BedrockModel(
@@ -29,5 +28,5 @@ class LogAgentBuilder:
             system_prompt=LOG_PROMPT,
             tools=self._tools,
             tool_executor=ConcurrentToolExecutor(),
-            conversation_manager=self.conversation_manager,
+            conversation_manager=self._conversation_manager,
         )

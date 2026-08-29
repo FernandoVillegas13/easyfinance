@@ -9,13 +9,12 @@ from settings.general import settings
 
 class ChatAgentBuilder:
 
-    conversation_manager = SlidingWindowConversationManager(
-        window_size=20,
-        should_truncate_results=True,
-    )
-
     def __init__(self, tools: list):
         self._tools = tools
+        self._conversation_manager = SlidingWindowConversationManager(
+            window_size=20,
+            should_truncate_results=True,
+        )
 
     def build_agent(self, session_manager) -> Agent:
         bedrock_model = BedrockModel(
@@ -29,6 +28,6 @@ class ChatAgentBuilder:
             system_prompt=CHAT_PROMPT,
             tools=self._tools,
             tool_executor=ConcurrentToolExecutor(),
-            conversation_manager=self.conversation_manager,
+            conversation_manager=self._conversation_manager,
             session_manager=session_manager,
         )
