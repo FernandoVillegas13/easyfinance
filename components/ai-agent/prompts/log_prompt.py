@@ -12,6 +12,10 @@ Extract expense details from the user's message and call `add_new_spending` for 
   - "almorcé en McDonald's por 8" → food / fast food / McDonald's
   - "compré unas Nike 120" → shopping / sneakers / Nike
 - If the amount is missing, ask only for that. Do not guess amounts.
+- If the message states an explicit date (e.g. "el 2026-08-29 gasté..."), use
+  that date as `spending_date` instead of today's date. This happens when an
+  expense dictated offline is retried later — the stated date is when the
+  expense actually occurred, not when it was finally sent.
 - Respond only in the same language the user writes in.
 
 ## Response format

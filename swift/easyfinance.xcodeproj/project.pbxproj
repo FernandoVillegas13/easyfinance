@@ -35,6 +35,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		EF0000000000000000000001 /* AppConfig.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Configuration/AppConfig.xcconfig; sourceTree = "<group>"; };
 		8C8EADCA302DB12D000E768A /* easyfinance.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = easyfinance.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8C8EADD0302DB12D000E768A /* easyfinance Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "easyfinance Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -61,6 +62,7 @@
 		8C8EADC3302DB12C000E768A = {
 			isa = PBXGroup;
 			children = (
+				EF0000000000000000000001 /* AppConfig.xcconfig */,
 				8C8EADD4302DB12D000E768A /* easyfinance Watch App */,
 				8C8EADCB302DB12D000E768A /* Products */,
 			);
@@ -309,6 +311,7 @@
 		};
 		8C8EADDE302DB12F000E768A /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = EF0000000000000000000001 /* AppConfig.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -318,6 +321,9 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = easyfinance;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "easyfinance usa el micrófono para registrar tus gastos por voz.";
+				INFOPLIST_KEY_EasyFinanceAPIBaseURL = "$(EASYFINANCE_API_BASE_URL)";
+				INFOPLIST_KEY_EasyFinanceAPIKey = "$(EASYFINANCE_API_KEY)";
+				INFOPLIST_KEY_EasyFinanceUserID = "$(EASYFINANCE_USER_ID)";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_WKWatchOnly = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -342,6 +348,7 @@
 		};
 		8C8EADDF302DB12F000E768A /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = EF0000000000000000000001 /* AppConfig.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -351,6 +358,9 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = easyfinance;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "easyfinance usa el micrófono para registrar tus gastos por voz.";
+				INFOPLIST_KEY_EasyFinanceAPIBaseURL = "$(EASYFINANCE_API_BASE_URL)";
+				INFOPLIST_KEY_EasyFinanceAPIKey = "$(EASYFINANCE_API_KEY)";
+				INFOPLIST_KEY_EasyFinanceUserID = "$(EASYFINANCE_USER_ID)";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_WKWatchOnly = YES;
 				LD_RUNPATH_SEARCH_PATHS = (

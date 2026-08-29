@@ -6,16 +6,14 @@ from settings.logger import logger
 
 class Tools:
 
-    def __init__(self, database_service: IDataService):
+    def __init__(self, database_service: IDataService, user_id: str):
         self._database_service = database_service
-        self._user_id: str = ""
-
-    def get_log_tools(self, user_id: str) -> list:
         self._user_id = user_id
+
+    def get_log_tools(self) -> list:
         return [self.add_new_spending]
 
-    def get_chat_tools(self, user_id: str) -> list:
-        self._user_id = user_id
+    def get_chat_tools(self) -> list:
         return [self.add_new_spending, self.query_spendings]
 
     @tool

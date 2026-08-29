@@ -5,6 +5,7 @@ from psycopg2.extras import RealDictCursor
 from schema.spending import SpendingInput
 from services.database.database_service import IDataService
 from settings.general import settings
+from settings.logger import logger
 
 # SQL keywords that mutate data — never allowed in query_spendings
 _FORBIDDEN = re.compile(
@@ -30,8 +31,6 @@ class DoDatabaseService(IDataService):
 
     def create_element(self, element: SpendingInput, user_id: str) -> str:
         conn = self._get_connection()
-
-        print("Database Service: ", str(element))
 
         try:
             with conn.cursor(cursor_factory=RealDictCursor) as cursor:
@@ -61,11 +60,9 @@ class DoDatabaseService(IDataService):
                 )
                 conn.commit()
                 row = cursor.fetchone()
-                response = str(row["id"])
-                print("Respuesta BD", response)
-                return response
+                return str(row["id"])
         except Exception as e:
-            print(f"DB ERROR en create_element: {e}")
+            logger.error(f"[create_element] user={user_id} error={e}")
             conn.close()
             self._connection = None
             raise
@@ -89,6 +86,37 @@ class DoDatabaseService(IDataService):
         try:
             with conn.cursor(cursor_factory=RealDictCursor) as cursor:
                 cursor.execute(scoped_sql, (user_id,))
+                return [dict(row) for row in cursor.fetchall()]
+        except Exception:
+            conn.close()
+            self._connection = None
+            raise
+
+    def list_spendings(self, user_id: str, limit: int) -> list[dict]:
+        """Return recent spendings for one user using a fixed, parameterized query."""
+        conn = self._get_connection()
+        try:
+            with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+                cursor.execute(
+                    f"""
+                    SELECT
+                        id::text AS id,
+                        category,
+                        subcategory,
+                        description,
+                        amount::float8 AS amount,
+                        currency,
+                        quantity,
+                        payment_method,
+                        is_recurring,
+                        COALESCE(date, CURRENT_DATE) AS date
+                    FROM {settings.db_schema}.{settings.db_table}
+                    WHERE user_id = %s
+                    ORDER BY date DESC NULLS LAST, id DESC
+                    LIMIT %s;
+                    """,
+                    (user_id, limit),
+                )
                 return [dict(row) for row in cursor.fetchall()]
         except Exception:
             conn.close()

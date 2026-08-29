@@ -75,3 +75,6 @@ crash.*.log
 *.tfvars
 *.tfvars.json
 !*.tfvars.example
+
+# Local watch app credentials
+swift/Configuration/Secrets.xcconfig

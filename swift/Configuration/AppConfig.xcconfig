@@ -1,0 +1,8 @@
+// Non-secret defaults for the watch app.
+// Xcode treats // as a comment, so $() preserves the second slash in HTTPS URLs.
+EASYFINANCE_API_BASE_URL = https:/$()/licm3mgb2sak63hkui7jldwkeu0laxjz.lambda-url.us-east-1.on.aws/
+EASYFINANCE_API_KEY =
+EASYFINANCE_USER_ID = easyfinance-watch
+
+// Local values override the defaults when this ignored file exists.
+#include? "Secrets.xcconfig"

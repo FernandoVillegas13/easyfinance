@@ -74,3 +74,20 @@ class SpendingInput(BaseModel):
         default=None,
         description="Date of the expense, if different from today. Format: YYYY-MM-DD"
     )
+
+
+class SpendingRecord(BaseModel):
+    id: str
+    category: SpendingCategory
+    subcategory: Optional[str] = None
+    description: Optional[str] = None
+    amount: float
+    currency: Currency
+    quantity: int
+    payment_method: Optional[PaymentMethod] = None
+    is_recurring: bool
+    date: date
+
+
+class SpendingListResponse(BaseModel):
+    spendings: list[SpendingRecord]

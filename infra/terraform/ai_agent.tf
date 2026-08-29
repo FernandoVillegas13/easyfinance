@@ -158,8 +158,8 @@ resource "aws_lambda_function_url" "ai_agent" {
   cors {
     allow_credentials = false
     allow_origins     = ["*"]
-    allow_methods     = ["POST"]
-    allow_headers     = ["Content-Type"]
+    allow_methods     = ["GET", "POST"]
+    allow_headers     = ["Content-Type", "X-Api-Key"]
     max_age           = 86400
   }
 }

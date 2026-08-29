@@ -4,19 +4,19 @@ from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 
-from schema.response import UserRequest
+from agent.chat_agent_builder import ChatAgentBuilder
+from agent.log_agent_builder import LogAgentBuilder
+from agent.session_manager import SessionManager
+from schema.response import AgentResponse, SpendingsRequest, UserRequest
+from schema.spending import SpendingListResponse
+from services.database.do_database_service import DoDatabaseService
 from settings.general import settings
 from settings.logger import logger
-from agent.log_agent_builder import LogAgentBuilder
-from agent.chat_agent_builder import ChatAgentBuilder
-from agent.session_manager import SessionManager
-from services.database.do_database_service import DoDatabaseService
 from tools.tools import Tools
 
-# Inicializar service
+
 database_service = DoDatabaseService()
 session_manager = SessionManager()
-tools = Tools(database_service=database_service)
 
 app = FastAPI()
 
@@ -47,30 +47,33 @@ async def get_health() -> dict[str, int]:
     return {"status": 200}
 
 
-@app.post(f"/api/{settings.api_version}/log")
-async def log(user_request: UserRequest) -> dict[str, str]:
-    """
-    Silent logging endpoint. Extracts expenses from the message and saves them.
-    """
+@app.post(f"/api/{settings.api_version}/log", response_model=AgentResponse)
+async def log(user_request: UserRequest) -> AgentResponse:
+    """Extract expenses from a message and save them without chat history."""
     logger.info(f"[log] user={user_request.user_id} query={user_request.query!r}")
-    agent = LogAgentBuilder(tools=tools.get_log_tools(user_request.user_id)).build_agent()
+    request_tools = Tools(database_service, user_request.user_id)
+    agent = LogAgentBuilder(tools=request_tools.get_log_tools()).build_agent()
     agent_response = agent(user_request.query)
 
-    return {"response": str(agent_response)}
+    return AgentResponse(response=str(agent_response))
 
 
-@app.post(f"/api/{settings.api_version}/chat")
-async def chat(user_request: UserRequest) -> dict[str, str]:
-    """
-    Conversational endpoint. Can log expenses and answer analytical questions.
-    Query tools are bound per-request to enforce row-level security by user_id.
-    """
+@app.post(f"/api/{settings.api_version}/chat", response_model=AgentResponse)
+async def chat(user_request: UserRequest) -> AgentResponse:
+    """Answer financial questions with user-scoped tools and S3 chat history."""
     logger.info(f"[chat] user={user_request.user_id} query={user_request.query!r}")
-    chat_agent_builder = ChatAgentBuilder(
-        tools=tools.get_chat_tools(user_request.user_id)
-    )
+    request_tools = Tools(database_service, user_request.user_id)
+    chat_agent_builder = ChatAgentBuilder(tools=request_tools.get_chat_tools())
     session = session_manager.get_session_manager(user_request.user_id)
     agent = chat_agent_builder.build_agent(session)
     agent_response = agent(user_request.query)
 
-    return {"response": str(agent_response)}
+    return AgentResponse(response=str(agent_response))
+
+
+@app.post(f"/api/{settings.api_version}/spendings", response_model=SpendingListResponse)
+async def spendings(request: SpendingsRequest) -> SpendingListResponse:
+    """Return recent expenses as structured data for trusted first-party clients."""
+    logger.info(f"[spendings] user={request.user_id} limit={request.limit}")
+    rows = database_service.list_spendings(request.user_id, request.limit)
+    return SpendingListResponse(spendings=rows)
