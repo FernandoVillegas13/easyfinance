@@ -17,8 +17,6 @@ database_service = DoDatabaseService()
 session_manager = SessionManager()
 tools = Tools(database_service=database_service)
 
-log_agent_builder = LogAgentBuilder(tools=tools.get_log_tools())
-
 app = FastAPI()
 
 app.add_middleware(
@@ -51,7 +49,7 @@ async def log(user_request: UserRequest) -> dict[str, str]:
     """
     Silent logging endpoint. Extracts expenses from the message and saves them.
     """
-    agent = log_agent_builder.build_agent()
+    agent = LogAgentBuilder(tools=tools.get_log_tools(user_request.user_id)).build_agent()
     agent_response = agent(user_request.query)
 
     return {"response": str(agent_response)}

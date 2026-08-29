@@ -70,7 +70,7 @@ class SpendingInput(BaseModel):
         description="Whether this is a recurring/fixed expense like a subscription or rent"
     )
 
-    date: Optional[date] = Field(
+    spending_date: Optional[date] = Field(
         default=None,
-        description="Date of the expense, if different from today"
+        description="Date of the expense, if different from today. Format: YYYY-MM-DD"
     )

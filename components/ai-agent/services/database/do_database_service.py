@@ -28,21 +28,26 @@ class DoDatabaseService(IDataService):
             )
         return self._connection
 
-    def create_element(self, element: SpendingInput) -> str:
+    def create_element(self, element: SpendingInput, user_id: str) -> str:
         conn = self._get_connection()
+
+        print("Database Service: ", str(element))
+
         try:
             with conn.cursor(cursor_factory=RealDictCursor) as cursor:
                 cursor.execute(
                     f"""
-                    INSERT INTO {settings.db_table} (
+                    INSERT INTO {settings.db_schema}.{settings.db_table} (
+                        user_id,
                         category, subcategory, description,
                         amount, currency, quantity,
                         payment_method, is_recurring, date
                     )
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                     RETURNING id;
                     """,
                     (
+                        user_id,
                         element.category.value,
                         element.subcategory,
                         element.description,
@@ -51,13 +56,16 @@ class DoDatabaseService(IDataService):
                         element.quantity,
                         element.payment_method.value if element.payment_method else None,
                         element.is_recurring,
-                        element.date,
+                        element.spending_date,
                     ),
                 )
                 conn.commit()
                 row = cursor.fetchone()
-                return str(row["id"])
-        except Exception:
+                response = str(row["id"])
+                print("Respuesta BD", response)
+                return response
+        except Exception as e:
+            print(f"DB ERROR en create_element: {e}")
             conn.close()
             self._connection = None
             raise
@@ -74,7 +82,7 @@ class DoDatabaseService(IDataService):
 
         scoped_sql = sql.replace(
             settings.db_table,
-            f"(SELECT * FROM {settings.db_table} WHERE user_id = %s) AS {settings.db_table}",
+            f"(SELECT * FROM {settings.db_schema}.{settings.db_table} WHERE user_id = %s) AS {settings.db_table}",
         )
 
         conn = self._get_connection()

@@ -6,7 +6,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     api_version: str = "v1"
     api_key: str = Field(validation_alias="API_KEY")
-    agent_model: str = "us.amazon.nova-2-lite-v1:0"
+    agent_model: str = "us.anthropic.claude-haiku-4-5-20251001-v1:0"
     region_name: str = Field(default="us-east-1", validation_alias="AWS_REGION")
     temperature: float = 0.3
 

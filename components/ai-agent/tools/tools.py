@@ -9,7 +9,8 @@ class Tools:
         self._database_service = database_service
         self._user_id: str = ""
 
-    def get_log_tools(self) -> list:
+    def get_log_tools(self, user_id: str) -> list:
+        self._user_id = user_id
         return [self.add_new_spending]
 
     def get_chat_tools(self, user_id: str) -> list:
@@ -25,11 +26,17 @@ class Tools:
             element: Spending details including category, subcategory, description,
                      amount, currency, quantity, payment_method, is_recurring and date.
         """
-        created_id = self._database_service.create_element(element)
-        return f"Expense logged successfully with id: {created_id}"
+        try:
+            if isinstance(element, dict):
+                element = SpendingInput(**element)
+
+            created_id = self._database_service.create_element(element, self._user_id)
+            return f"saved:{created_id}"
+        except Exception as e:
+            return f"error:{str(e)}"
 
     @tool
-    def query_spendings(self, sql: str) -> list[dict]:
+    def query_spendings(self, sql: str) -> str | list[dict]:
         """
         Run a read-only SQL SELECT query against the user's spending history.
         Results are automatically scoped to the current user — do not add user_id filters.
@@ -41,4 +48,7 @@ class Tools:
                  amount, currency, quantity, payment_method, is_recurring, date.
                  Example: SELECT category, SUM(amount) as total FROM spendings GROUP BY category ORDER BY total DESC
         """
-        return self._database_service.query_spendings(self._user_id, sql)
+        try:
+            return self._database_service.query_spendings(self._user_id, sql)
+        except Exception as e:
+            return f"error:{str(e)}"

@@ -5,7 +5,7 @@ from schema.spending import SpendingInput
 class IDataService(ABC):
 
     @abstractmethod
-    def create_element(self, element: SpendingInput) -> str:
+    def create_element(self, element: SpendingInput, user_id: str) -> str:
         pass
 
     @abstractmethod
