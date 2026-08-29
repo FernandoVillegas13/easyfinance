@@ -1,5 +1,6 @@
 boto3==1.43.78
 fastapi>=0.115.0,<1.0.0
+psycopg2-binary==2.9.10
 pydantic==2.13.4
 strands-agents==1.53.0
 strands-agents-tools==0.8.6

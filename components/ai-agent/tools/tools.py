@@ -19,5 +19,8 @@ class Tools:
         Args:
             element: Spending details including category, amount, quantity, and optional description.
         """
+
+        print("ELEMENT:", str(element) )
+
         created_id = self._database_service.create_element(element)
         return f"Expense added successfully with id: {created_id}"

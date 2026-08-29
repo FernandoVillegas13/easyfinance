@@ -1,24 +1,30 @@
-import os
 from functools import lru_cache
+from pydantic import Field
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
-class Settings:
+class Settings(BaseSettings):
     api_version: str = "v1"
     agent_model: str = "us.amazon.nova-2-lite-v1:0"
-    region_name: str = os.getenv("AWS_REGION", "us-east-1")
-    temperature: int = 0.3
+    region_name: str = Field(default="us-east-1", validation_alias="AWS_REGION")
+    temperature: float = 0.3
 
     # Session Manager
-    bucket_session: str = os.getenv("BUCKET_SESSION", "easyfinance")
-    bucket_prefix: str = os.getenv("BUCKET_PREFIX", "production/")
+    bucket_session: str = "easyfinance"
+    bucket_prefix: str = "production/"
 
     # PostgreSQL
-    db_host: str = os.getenv("DB_HOST", "localhost")
-    db_port: int = int(os.getenv("DB_PORT", "5432"))
-    db_name: str = os.getenv("DB_NAME", "easyfinance")
-    db_user: str = os.getenv("DB_USER", "postgres")
-    db_password: str = os.getenv("DB_PASSWORD", "")
-    db_table: str = os.getenv("DB_TABLE", "spendings")
+    db_host: str = "localhost"
+    db_port: int = 5432
+    db_name: str = "easyfinance"
+    db_user: str = "postgres"
+    db_password: str = ""
+    db_table: str = "spendings"
+
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+    ) ##Saca las verdaderas variables desde el .env
 
 
 @lru_cache
