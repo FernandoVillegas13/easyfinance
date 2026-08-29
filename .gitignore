@@ -52,6 +52,19 @@ htmlcov/
 .vscode/
 .idea/
 
+# Swift / Xcode
+swift/*.xcodeproj/xcuserdata/
+swift/*.xcodeproj/project.xcworkspace/xcuserdata/
+swift/*.xcodeproj/project.xcworkspace/xcshareddata/
+swift/**/*.xcuserstate
+swift/**/.DS_Store
+swift/DerivedData/
+swift/**/*.hmap
+swift/**/*.ipa
+swift/**/*.dSYM.zip
+swift/**/*.dSYM
+swift/**/build/
+
 # Terraform local state and sensitive inputs
 .terraform/
 *.tfstate
