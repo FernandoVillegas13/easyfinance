@@ -1,13 +1,16 @@
 from strands import Agent
 from strands.models import BedrockModel
-from settings.general import settings
 from strands.agent.conversation_manager import SlidingWindowConversationManager
+from strands.tools.executors import ConcurrentToolExecutor
+
+from prompts.chat_prompt import CHAT_PROMPT
+from settings.general import settings
 
 
-class AgentBuilder:
+class ChatAgentBuilder:
 
     conversation_manager = SlidingWindowConversationManager(
-        window_size=10,
+        window_size=20,
         should_truncate_results=True,
     )
 
@@ -21,13 +24,11 @@ class AgentBuilder:
             temperature=settings.temperature,
         )
 
-        print("session_recibida:", session_manager)
-
-        agent = Agent(
+        return Agent(
             model=bedrock_model,
+            system_prompt=CHAT_PROMPT,
             tools=self._tools,
+            tool_executor=ConcurrentToolExecutor(),
             conversation_manager=self.conversation_manager,
             session_manager=session_manager,
         )
-
-        return agent

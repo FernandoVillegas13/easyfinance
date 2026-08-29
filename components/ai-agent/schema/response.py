@@ -1,11 +1,9 @@
 from pydantic import BaseModel
 
 
-class UserResponse(BaseModel):
+class UserRequest(BaseModel):
     user_id: str
     query: str
-    audio: str
-
 
 
 class AgentResponse(BaseModel):

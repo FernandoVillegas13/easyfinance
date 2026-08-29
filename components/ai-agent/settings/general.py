@@ -5,6 +5,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     api_version: str = "v1"
+    api_key: str = Field(validation_alias="API_KEY")
     agent_model: str = "us.amazon.nova-2-lite-v1:0"
     region_name: str = Field(default="us-east-1", validation_alias="AWS_REGION")
     temperature: float = 0.3
@@ -19,6 +20,7 @@ class Settings(BaseSettings):
     db_name: str = "easyfinance"
     db_user: str = "postgres"
     db_password: str = ""
+    db_schema: str = "easyfinance"
     db_table: str = "spendings"
 
     model_config = SettingsConfigDict(
