@@ -9,6 +9,7 @@ class Settings(BaseSettings):
     agent_model: str = Field(default="us.anthropic.claude-haiku-4-5-20251001-v1:0", validation_alias="AGENT_MODEL")
     region_name: str = Field(default="us-east-1", validation_alias="AWS_REGION")
     temperature: float = 0.3
+    app_timezone: str = Field(default="America/Lima", validation_alias="APP_TIMEZONE")
 
     # Session Manager
     bucket_session: str = Field(default="easyfinance", validation_alias="BUCKET_SESSION")

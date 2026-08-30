@@ -1,4 +1,7 @@
 import re
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
 import psycopg2
 from psycopg2.extras import RealDictCursor
 
@@ -55,7 +58,7 @@ class DoDatabaseService(IDataService):
                         element.quantity,
                         element.payment_method.value if element.payment_method else None,
                         element.is_recurring,
-                        element.spending_date,
+                        element.spending_date or datetime.now(ZoneInfo(settings.app_timezone)).date(),
                     ),
                 )
                 conn.commit()

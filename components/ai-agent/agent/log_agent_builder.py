@@ -1,9 +1,12 @@
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
 from strands import Agent
 from strands.models import BedrockModel
 from strands.agent.conversation_manager import SlidingWindowConversationManager
 from strands.tools.executors import ConcurrentToolExecutor
 
-from prompts.log_prompt import LOG_PROMPT
+from prompts.log_prompt import build_log_prompt
 from settings.general import settings
 
 
@@ -23,9 +26,15 @@ class LogAgentBuilder:
             temperature=settings.temperature,
         )
 
+        now = datetime.now(ZoneInfo(settings.app_timezone))
+        system_prompt = build_log_prompt(
+            today=now.strftime("%Y-%m-%d"),
+            weekday=now.strftime("%A"),
+        )
+
         return Agent(
             model=bedrock_model,
-            system_prompt=LOG_PROMPT,
+            system_prompt=system_prompt,
             tools=self._tools,
             tool_executor=ConcurrentToolExecutor(),
             conversation_manager=self._conversation_manager,
